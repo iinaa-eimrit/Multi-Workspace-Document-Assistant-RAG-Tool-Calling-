@@ -132,6 +132,21 @@ export default function ChatWindow() {
     }
   };
 
+  const handleClearHistory = async () => {
+    if (!window.confirm('Are you sure you want to clear the chat history for this workspace?')) return;
+    const { error } = await supabase
+      .from('chat_messages')
+      .delete()
+      .eq('workspace_id', activeWorkspace.id);
+    
+    if (error) {
+      addToast('Failed to clear history', 'error');
+    } else {
+      setMessages([]);
+      addToast('Chat history cleared', 'success');
+    }
+  };
+
   if (!activeWorkspace) {
     return (
       <div className="chat-window empty glass-panel">
@@ -142,6 +157,14 @@ export default function ChatWindow() {
 
   return (
     <div className="chat-window glass-panel">
+      {messages.length > 0 && (
+        <div className="chat-header">
+          <span className="history-count">{messages.length} messages in history</span>
+          <button className="clear-history-btn" onClick={handleClearHistory} disabled={loading}>
+            Clear History
+          </button>
+        </div>
+      )}
       <div className="chat-messages">
         {fetchingHistory ? (
           <Spinner />
@@ -174,6 +197,9 @@ export default function ChatWindow() {
                     ))}
                   </div>
                 )}
+                <div className="message-time">
+                  {new Date(msg.created_at || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </div>
               </div>
             </div>
           ))
@@ -205,6 +231,43 @@ export default function ChatWindow() {
           justify-content: center;
           align-items: center;
           color: var(--text-muted);
+        }
+        .chat-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 1rem 1.5rem;
+          border-bottom: 1px solid var(--surface-border);
+          background: rgba(0, 0, 0, 0.2);
+        }
+        .history-count {
+          font-size: 0.85rem;
+          color: var(--text-muted);
+        }
+        .clear-history-btn {
+          background: transparent;
+          border: 1px solid var(--error);
+          color: var(--error);
+          padding: 0.25rem 0.75rem;
+          border-radius: var(--radius-sm);
+          font-size: 0.8rem;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        .clear-history-btn:hover:not(:disabled) {
+          background: var(--error);
+          color: white;
+        }
+        .clear-history-btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+        .message-time {
+          font-size: 0.7rem;
+          color: var(--text-muted);
+          text-align: right;
+          margin-top: 0.5rem;
+          opacity: 0.7;
         }
         .chat-messages {
           flex: 1;
