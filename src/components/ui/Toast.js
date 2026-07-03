@@ -7,6 +7,11 @@ const ToastContext = createContext(null);
 
 export function ToastProvider({ children }) {
   const [toasts, setToasts] = useState([]);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const addToast = useCallback((message, type = 'info', duration = 3000) => {
     const id = Date.now().toString();
@@ -26,7 +31,7 @@ export function ToastProvider({ children }) {
   return (
     <ToastContext.Provider value={{ addToast }}>
       {children}
-      {typeof document !== 'undefined' && createPortal(
+      {mounted && createPortal(
         <div className="toast-container">
           {toasts.map((toast) => (
             <div key={toast.id} className={`toast toast-${toast.type} animate-fade-in`}>
