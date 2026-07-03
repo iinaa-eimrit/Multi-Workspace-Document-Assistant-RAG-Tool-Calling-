@@ -1,62 +1,46 @@
 # AI Collaboration Notes
 
-## AI Tools & Models Used
+## 1. AI Tools & Models Used
 
-I used Antigravity IDE with Gemini models as a development assistant throughout this project. Rather than generating the entire application at once, I mainly used AI for accelerating repetitive implementation, reviewing code, and helping explore areas I hadn't worked with before, particularly pgvector, RAG pipelines, Gemini tool calling, and Supabase Row Level Security.
+Throughout this project, I used Antigravity IDE alongside Gemini models as my primary development assistant. Because I wanted to make sure I truly understood the architecture, I didn't use the AI to generate the entire application at once. Instead, I treated it like a more experienced pairing partner. 
 
-For most features, I first decided how I wanted the architecture to work, then used AI to help scaffold implementations, explain unfamiliar APIs, or review specific pieces of code. Every feature was tested and adjusted manually before moving on to the next phase.
+I relied on it mostly for:
+- Learning unfamiliar technologies, specifically how `pgvector` works and how to manage Server-Sent Events (SSE) in Next.js.
+- Understanding the documentation for the newer `@google/genai` SDK.
+- Reviewing my implementation ideas before writing the actual code.
+- Speeding up repetitive tasks like writing CSS boilerplate and basic React component layouts.
+- Helping me debug some tricky database configuration issues.
 
----
+I made sure to manually verify, test, and adjust the AI-generated snippets to fit my overall project structure rather than blindly copy-pasting.
 
-## Key Decisions I Made
+## 2. Key Decisions I Made
 
-### 1. Enforcing workspace isolation inside the vector search
+**Enforcing workspace isolation at the database level**
+I realized early on that filtering vector search results in the application code could lead to security leaks if the logic was ever skipped. I decided to enforce tenant isolation directly inside the `match_chunks` PostgreSQL RPC function. I asked the AI to help me compare different indexing approaches, but ultimately chose to pass `workspace_id` directly into the database function to guarantee that chunks from other workspaces are never even queried.
 
-One of the most important design decisions was ensuring tenant isolation at the database level instead of filtering retrieved results in application code.
+**Validating tool calls explicitly**
+The project required the model to autonomously trigger external tools. I didn't want the model executing arbitrary JSON directly on my backend. I decided to build a rigid validation layer. I set up schemas to validate every tool invocation before execution, returning structured errors back to the model if it hallucinated arguments. This kept the system predictable and prevented unexpected runtime crashes.
 
-I implemented retrieval so the active `workspace_id` is part of the vector search itself through the `match_chunks` SQL function. This guarantees that chunks from another workspace are never retrieved in the first place, which is both more secure and more efficient.
+**Keeping the RAG pipeline modular**
+Rather than putting parsing, chunking, embedding, and retrieval all in one massive API route, I separated them into distinct utility modules (`parser.js`, `embeddings.js`, `retrieval.js`). I used AI to help me understand standard practices for chunk overlap sizes, but the modular structure was my decision to make testing and debugging easier.
 
----
+## 3. Hardest Bug / Wrong Turn
 
-### 2. Keeping the AI pipeline modular
+The most frustrating bug I encountered was getting `pgvector` to work correctly within a secure Supabase RPC function. 
 
-Since I hadn't previously built a complete RAG application with tool calling, I used AI to understand different implementation approaches before deciding on the final structure.
+Initially, my `match_chunks` function was throwing an error during chat: `operator does not exist: public.vector <=> public.vector`. I couldn't figure out why the vector similarity operator was suddenly unrecognizable, even though the extension was successfully enabled. I used the AI to help brainstorm potential causes. It helped me realize that because I had set the function to `security definer` (to safely bypass Row Level Security for the internal query), the default `search_path` was being restricted.
 
-Instead of placing everything inside a single chat endpoint, I separated the pipeline into document parsing, chunking, embeddings, retrieval, tool execution, and chat orchestration. This made each part easier to test independently and kept the codebase easier to maintain.
+Once the AI pointed me toward the `search_path` concept, I investigated the Postgres docs, confirmed the root cause myself, and manually updated the SQL function to include `SET search_path = public`. That fixed the issue immediately.
 
----
+## 4. What I'd Improve With More Time
 
-### 3. Tool execution with explicit validation
+If I had more time to work on this, I'd focus on:
+- **Background Document Processing:** Moving the document parsing and embedding pipeline into a background queue. Right now, very large files might hit the Vercel serverless function timeout.
+- **Hybrid Search:** Combining the current vector search with standard PostgreSQL full-text keyword search to improve accuracy for specific nouns, names, or IDs.
+- **Better Observability:** Building out a dedicated dashboard to visualize token usage trends, latency spikes, and tool execution success rates over time.
 
-The project required the model to call external tools safely.
+## 5. Reflection
 
-I decided that every tool invocation should be validated before execution using a schema, with invalid requests returning structured errors rather than executing anything unexpected. This keeps the tool layer predictable and prevents malformed model responses from causing runtime issues.
+Building this project taught me a lot about integrating LLMs into traditional web architectures. Using AI definitely accelerated my development speed, especially when I was stuck on unfamiliar syntax or needed to quickly understand how a new library worked. 
 
----
-
-## Hardest Bug / Wrong Turn
-
-The most difficult issue happened while integrating the RAG retrieval pipeline.
-
-Initially, document uploads completed successfully, but chat requests failed because retrieval wasn't returning the expected results. I hadn't worked with pgvector before, so I used AI to help inspect the SQL function and verify the retrieval flow.
-
-After testing the RPC function directly and checking the generated SQL, I found the problem was related to the database function configuration rather than the application logic. Adjusting the function configuration resolved the issue, and I added additional validation to make retrieval failures easier to diagnose in the future.
-
-This was the part of the project where AI was most valuable—it helped narrow down possibilities much faster, but I still had to verify each assumption by testing the database and API endpoints manually.
-
----
-
-## What I'd Improve With More Time
-
-If I continued developing this project, I would focus on a few areas:
-
-* Add hybrid retrieval (vector search combined with PostgreSQL full-text search) to improve results for exact keyword queries.
-* Move document ingestion into background jobs so larger documents don't depend on request time limits.
-* Improve observability with a dedicated dashboard for retrieval scores, token usage, latency, and tool execution metrics.
-* Expand the tool system with additional integrations and more advanced multi-step workflows.
-
----
-
-## Reflection
-
-The biggest value AI provided during this project was helping me learn unfamiliar technologies more quickly and validating implementation ideas before I committed to them. I still made the architectural decisions, integrated the different parts of the system, tested the application end-to-end, and debugged issues as they appeared. Using AI sped up development considerably, but understanding how the pieces fit together and verifying that they satisfied the project requirements remained my responsibility.
+However, this project reinforced that AI is just a tool. The AI couldn't design the overall system architecture, it couldn't tell if the UX felt intuitive, and it couldn't guarantee that the application met the specific requirements of the prompt. Understanding how the pieces fit together, testing the edge cases, and fixing the integration bugs remained entirely my responsibility.
