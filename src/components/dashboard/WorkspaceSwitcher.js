@@ -33,9 +33,30 @@ export default function WorkspaceSwitcher() {
 
   if (loading) return <div className="ws-switcher-loading">Loading workspaces...</div>;
 
+  const handleDelete = async () => {
+    if (!activeWorkspace) return;
+    if (!window.confirm(`Are you sure you want to delete workspace "${activeWorkspace.name}"? This will delete all documents and chat history.`)) {
+      return;
+    }
+    const { error } = await deleteWorkspace(activeWorkspace.id);
+    if (error) {
+      addToast(error.message, 'error');
+    } else {
+      addToast('Workspace deleted', 'success');
+    }
+  };
+
   return (
     <div className="ws-switcher">
-      <label>Active Workspace</label>
+      <div className="ws-header">
+        <label>Active Workspace</label>
+        {activeWorkspace && (
+          <button className="delete-ws-btn" onClick={handleDelete} title="Delete Workspace">
+            &times;
+          </button>
+        )}
+      </div>
+      
       <select 
         value={activeWorkspace?.id || ''} 
         onChange={(e) => switchWorkspace(e.target.value)}
@@ -78,11 +99,29 @@ export default function WorkspaceSwitcher() {
           flex-direction: column;
           gap: 0.75rem;
         }
+        .ws-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
         label {
           font-size: 0.8rem;
           color: var(--text-muted);
           text-transform: uppercase;
           letter-spacing: 0.05em;
+        }
+        .delete-ws-btn {
+          background: none;
+          border: none;
+          color: var(--error);
+          font-size: 1.25rem;
+          cursor: pointer;
+          padding: 0;
+          line-height: 1;
+          opacity: 0.7;
+        }
+        .delete-ws-btn:hover {
+          opacity: 1;
         }
         .ws-select {
           width: 100%;
