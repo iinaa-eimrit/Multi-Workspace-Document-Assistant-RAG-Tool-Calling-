@@ -48,7 +48,7 @@ create table document_chunks (
   workspace_id uuid not null, -- Denormalized for fast filtered vector search
   chunk_index integer not null,
   content text not null,
-  embedding vector(3072), -- gemini-embedding-2 at 3072 dims
+  embedding vector(768), -- gemini-embedding-2 at 768 dims (via outputDimensionality)
   metadata jsonb default '{}', -- page number, section title, etc.
   created_at timestamptz default now()
 );
@@ -197,7 +197,7 @@ create policy "Update tasks" on tasks for update
 
 -- Function for vector similarity search with workspace isolation
 create or replace function match_chunks(
-  query_embedding vector(3072),
+  query_embedding vector(768),
   target_workspace_id uuid,
   match_threshold float default 0.5,
   match_count int default 5

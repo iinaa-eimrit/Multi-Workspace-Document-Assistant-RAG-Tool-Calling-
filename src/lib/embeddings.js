@@ -10,8 +10,11 @@ const ai = new GoogleGenAI({ apiKey: env.ai.geminiApiKey });
 export async function generateEmbedding(text) {
   try {
     const response = await ai.models.embedContent({
-      model: 'text-embedding-004',
+      model: 'gemini-embedding-2',
       contents: text,
+      config: {
+        outputDimensionality: 768
+      }
     });
     
     // The new SDK returns embeddings in response.embeddings[0].values
