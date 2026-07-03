@@ -118,6 +118,16 @@ create policy "Users can create workspaces" on workspaces for insert with check 
 create policy "Owners can update workspaces" on workspaces for update using (owner_id = auth.uid());
 create policy "Owners can delete workspaces" on workspaces for delete using (owner_id = auth.uid());
 
+-- Workspace Members
+create policy "Users can view workspace members" on workspace_members for select
+  using (user_id = auth.uid() or workspace_id in (
+    select id from workspaces where owner_id = auth.uid()
+  ));
+create policy "Owners can manage workspace members" on workspace_members for all
+  using (workspace_id in (
+    select id from workspaces where owner_id = auth.uid()
+  ));
+
 -- Documents: workspace members can access
 create policy "Workspace members can view documents" on documents for select
   using (workspace_id in (
