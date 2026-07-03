@@ -23,6 +23,7 @@ export async function POST(req) {
     const { messages, workspaceId } = body;
 
     if (!workspaceId || !messages || !Array.isArray(messages) || messages.length === 0) {
+      console.error('Invalid chat request:', { workspaceId, messages });
       return NextResponse.json({ error: 'Valid workspaceId and messages array are required' }, { status: 400 });
     }
 

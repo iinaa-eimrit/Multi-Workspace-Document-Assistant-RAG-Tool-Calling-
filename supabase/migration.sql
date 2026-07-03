@@ -212,7 +212,7 @@ returns table (
 )
 language plpgsql
 security definer -- bypasses RLS but we filter explicitly
-set search_path = ''
+set search_path = public, ''
 as $$
 begin
   return query
