@@ -55,8 +55,10 @@ export async function POST(req) {
     const stream = new ReadableStream({
       async start(controller) {
         try {
+          const startTime = Date.now();
           let fullText = '';
           let toolCallDetected = null;
+          let usageMetadata = null;
 
           // Initial LLM Call
           const responseStream = await ai.models.generateContentStream({
@@ -69,6 +71,9 @@ export async function POST(req) {
           });
 
           for await (const chunk of responseStream) {
+            if (chunk.usageMetadata) {
+              usageMetadata = chunk.usageMetadata;
+            }
             // Check for tool calls
             if (chunk.functionCalls && chunk.functionCalls.length > 0) {
               toolCallDetected = chunk.functionCalls[0];
@@ -82,9 +87,11 @@ export async function POST(req) {
           }
 
           // Handle Tool Execution Phase
+          let executedToolName = null;
           if (toolCallDetected) {
             const toolName = toolCallDetected.name;
             const args = toolCallDetected.args;
+            executedToolName = toolName;
             
             // Execute the physical tool logic and log it to DB
             const toolResult = await executeToolCall(workspaceId, userMsgRecord.id, toolName, args);
@@ -110,6 +117,9 @@ export async function POST(req) {
             });
 
             for await (const chunk of followUpStream) {
+              if (chunk.usageMetadata) {
+                usageMetadata = chunk.usageMetadata;
+              }
               if (chunk.text) {
                 fullText += chunk.text;
                 const payload = JSON.stringify({ type: 'text', text: chunk.text });
@@ -118,14 +128,22 @@ export async function POST(req) {
             }
           }
 
-          // 5. Persist the final assistant message (with citations)
+          const latencyMs = Date.now() - startTime;
+
+          // 5. Persist the final assistant message (with citations and AI metrics)
           const citationData = chunks.map(c => ({ id: c.id, source: c.metadata.source }));
           await supabase.from('chat_messages').insert([{
             workspace_id: workspaceId,
             user_id: user.id,
             role: 'assistant',
             content: fullText,
-            citations: citationData
+            citations: citationData,
+            metadata: {
+              latency_ms: latencyMs,
+              model: 'gemini-2.5-flash',
+              usage: usageMetadata,
+              tool_executed: executedToolName
+            }
           }]);
 
           // Send citations metadata to the client and close stream
