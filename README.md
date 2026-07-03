@@ -18,7 +18,7 @@ and chat with an AI assistant that answers questions grounded strictly in the wo
 - **Frontend**: Next.js 15 (App Router), React, Vanilla CSS (Custom Design System)
 - **Backend**: Next.js Server Route Handlers
 - **Database**: Supabase (PostgreSQL with `pgvector`)
-- **AI Models**: `@google/genai` (Gemini 2.5 Flash for Chat, text-embedding-004 for Vectors)
+- **AI Models**: `@google/genai` (Gemini 2.5 Flash for Chat, gemini-embedding-2 for Vectors)
 
 ## Local Setup
 
@@ -52,7 +52,7 @@ NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
 # Google Gemini
-GEMINI_API_KEY=your_gemini_api_key
+GOOGLE_GENERATIVE_AI_API_KEY=your_gemini_api_key
 
 # Discord Webhook (Optional - for testing the send_discord_summary tool)
 DISCORD_WEBHOOK_URL=your_discord_webhook_url
@@ -63,6 +63,15 @@ DISCORD_WEBHOOK_URL=your_discord_webhook_url
 npm run dev
 ```
 Visit `http://localhost:3000` to see the application running. Create an account via the Sign Up page to get started.
+
+## How to Test Workspace Isolation
+
+To demonstrate strict RAG isolation between workspaces:
+1. Log in with a test account (or create one).
+2. Create **Workspace A** and upload a document with unique facts (e.g., "The secret password for project Alpha is 'moonlight'").
+3. Create **Workspace B** and upload a completely unrelated document (e.g., a recipe for a cake).
+4. Switch to **Workspace B** and ask the assistant: "What is the secret password for project Alpha?"
+5. The assistant will explicitly state that it does not know the answer, because Workspace A's chunks are filtered out at the vector database level before the LLM even sees the context.
 
 ## Deployment (Vercel)
 
