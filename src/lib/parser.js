@@ -1,4 +1,4 @@
-import { PDFParse } from 'pdf-parse';
+import pdfParse from 'pdf-parse/lib/pdf-parse.js';
 import crypto from 'crypto';
 
 /**
@@ -16,8 +16,7 @@ export async function parseDocument(fileBuffer, mimeType) {
   
   if (mimeType === 'application/pdf') {
     try {
-      const parser = new PDFParse({ data: fileBuffer });
-      const data = await parser.getText();
+      const data = await pdfParse(fileBuffer);
       text = data.text;
     } catch (error) {
       throw new Error(`Failed to parse PDF: ${error.message}`);
