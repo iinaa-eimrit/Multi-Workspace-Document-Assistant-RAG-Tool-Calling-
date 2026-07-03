@@ -167,9 +167,9 @@ export default function ChatWindow() {
                 {msg.citations && msg.citations.length > 0 && (
                   <div className="citations-list">
                     <strong>Sources:</strong>
-                    {msg.citations.map((cit, idx) => (
+                    {[...new Set(msg.citations.map(c => c.source))].map((source, idx) => (
                       <span key={idx} className="citation-pill">
-                        {cit.source}
+                        {source}
                       </span>
                     ))}
                   </div>
