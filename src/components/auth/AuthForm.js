@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 
+const DEMO_EMAIL = 'demo@docassist.app';
+const DEMO_PASSWORD = 'demodemo123';
+
 export default function AuthForm({ mode = 'login' }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -46,10 +49,38 @@ export default function AuthForm({ mode = 'login' }) {
     }
   };
 
+  const handleDemoLogin = async () => {
+    setError(null);
+    setLoading(true);
+    try {
+      const { error } = await signIn(DEMO_EMAIL, DEMO_PASSWORD);
+      if (error) throw error;
+      router.push('/');
+    } catch (err) {
+      setError('Demo account not available. Please sign up with your own credentials.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="auth-form-container">
       <h2>{mode === 'login' ? 'Sign In' : 'Create an Account'}</h2>
       {error && <div className="error-message">{error}</div>}
+
+      {mode === 'login' && (
+        <button
+          type="button"
+          className="demo-btn"
+          onClick={handleDemoLogin}
+          disabled={loading}
+        >
+          {loading ? 'Signing in...' : '→ Try Demo Account'}
+        </button>
+      )}
+
+      {mode === 'login' && <div className="divider"><span>or sign in with your account</span></div>}
+
       <form onSubmit={handleSubmit}>
         {mode === 'signup' && (
           <div className="input-group">
@@ -87,7 +118,7 @@ export default function AuthForm({ mode = 'login' }) {
             minLength={6}
           />
         </div>
-        <button type="submit" disabled={loading}>
+        <button type="submit" className="submit-btn" disabled={loading}>
           {loading ? 'Processing...' : mode === 'login' ? 'Sign In' : 'Sign Up'}
         </button>
       </form>
@@ -125,6 +156,43 @@ export default function AuthForm({ mode = 'login' }) {
           font-size: 0.9rem;
           text-align: center;
         }
+        .demo-btn {
+          width: 100%;
+          padding: 0.85rem;
+          border: 2px solid var(--accent);
+          border-radius: 6px;
+          background: rgba(34, 211, 238, 0.08);
+          color: var(--accent);
+          font-weight: 600;
+          font-size: 1rem;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+        .demo-btn:hover:not(:disabled) {
+          background: rgba(34, 211, 238, 0.15);
+        }
+        .demo-btn:disabled {
+          opacity: 0.7;
+          cursor: not-allowed;
+        }
+        .divider {
+          display: flex;
+          align-items: center;
+          margin: 1.5rem 0;
+          gap: 1rem;
+        }
+        .divider::before,
+        .divider::after {
+          content: '';
+          flex: 1;
+          height: 1px;
+          background: var(--surface-border);
+        }
+        .divider span {
+          font-size: 0.8rem;
+          color: var(--text-muted);
+          white-space: nowrap;
+        }
         .input-group {
           margin-bottom: 1rem;
         }
@@ -147,7 +215,7 @@ export default function AuthForm({ mode = 'login' }) {
           outline: none;
           border-color: var(--accent);
         }
-        button {
+        .submit-btn {
           width: 100%;
           padding: 0.75rem;
           border: none;
@@ -158,7 +226,7 @@ export default function AuthForm({ mode = 'login' }) {
           cursor: pointer;
           margin-top: 1rem;
         }
-        button:disabled {
+        .submit-btn:disabled {
           opacity: 0.7;
           cursor: not-allowed;
         }

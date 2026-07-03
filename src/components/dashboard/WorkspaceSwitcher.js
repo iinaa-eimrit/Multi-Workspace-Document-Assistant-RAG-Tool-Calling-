@@ -8,7 +8,7 @@ import Input from '@/components/ui/Input';
 import { useToast } from '@/components/ui/Toast';
 
 export default function WorkspaceSwitcher() {
-  const { workspaces, activeWorkspace, switchWorkspace, createWorkspace, loading } = useWorkspace();
+  const { workspaces, activeWorkspace, switchWorkspace, createWorkspace, deleteWorkspace, loading } = useWorkspace();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newWsName, setNewWsName] = useState('');
   const [creating, setCreating] = useState(false);

@@ -1,12 +1,37 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { createClient } from '@/lib/supabase/client';
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const { activeWorkspace } = useWorkspace();
+  const [stats, setStats] = useState({ documents: 0, messages: 0, tasks: 0 });
+  const supabase = createClient();
+
+  useEffect(() => {
+    if (!activeWorkspace) {
+      setStats({ documents: 0, messages: 0, tasks: 0 });
+      return;
+    }
+
+    const fetchStats = async () => {
+      const [docRes, msgRes, taskRes] = await Promise.all([
+        supabase.from('documents').select('id', { count: 'exact', head: true }).eq('workspace_id', activeWorkspace.id),
+        supabase.from('chat_messages').select('id', { count: 'exact', head: true }).eq('workspace_id', activeWorkspace.id),
+        supabase.from('tasks').select('id', { count: 'exact', head: true }).eq('workspace_id', activeWorkspace.id),
+      ]);
+      setStats({
+        documents: docRes.count || 0,
+        messages: msgRes.count || 0,
+        tasks: taskRes.count || 0,
+      });
+    };
+
+    fetchStats();
+  }, [activeWorkspace]);
 
   return (
     <div className="dashboard-home">
@@ -22,18 +47,18 @@ export default function DashboardPage() {
       <div className="dashboard-grid">
         <div className="glass-panel stat-card">
           <h3>Documents</h3>
-          <p className="stat">0</p>
+          <p className="stat">{stats.documents}</p>
           <span className="stat-label">Indexed in this workspace</span>
         </div>
         <div className="glass-panel stat-card">
-          <h3>Chat Sessions</h3>
-          <p className="stat">0</p>
-          <span className="stat-label">Recent conversations</span>
+          <h3>Chat Messages</h3>
+          <p className="stat">{stats.messages}</p>
+          <span className="stat-label">In conversation history</span>
         </div>
         <div className="glass-panel stat-card">
           <h3>Tasks</h3>
-          <p className="stat">0</p>
-          <span className="stat-label">Pending actions</span>
+          <p className="stat">{stats.tasks}</p>
+          <span className="stat-label">Created by AI assistant</span>
         </div>
       </div>
 

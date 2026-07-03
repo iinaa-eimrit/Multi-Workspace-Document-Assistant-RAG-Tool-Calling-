@@ -40,7 +40,7 @@ export default function TaskList() {
   }, [fetchTasks]);
 
   const toggleStatus = async (id, currentStatus) => {
-    const newStatus = currentStatus === 'pending' ? 'completed' : 'pending';
+    const newStatus = currentStatus === 'done' ? 'todo' : 'done';
     const { error } = await supabase
       .from('tasks')
       .update({ status: newStatus })
@@ -79,11 +79,11 @@ export default function TaskList() {
             <div className="task-title-group">
               <input 
                 type="checkbox" 
-                checked={task.status === 'completed'}
+                checked={task.status === 'done'}
                 onChange={() => toggleStatus(task.id, task.status)}
                 className="task-checkbox"
               />
-              <h4 className={task.status === 'completed' ? 'completed-text' : ''}>{task.title}</h4>
+              <h4 className={task.status === 'done' ? 'completed-text' : ''}>{task.title}</h4>
             </div>
             <div className="task-actions">
               <span className={`priority-badge ${task.priority}`}>{task.priority}</span>
@@ -92,7 +92,7 @@ export default function TaskList() {
             </div>
           </div>
           {task.description && (
-            <div className={`task-desc ${task.status === 'completed' ? 'completed-text' : ''}`}>
+            <div className={`task-desc ${task.status === 'done' ? 'completed-text' : ''}`}>
               {task.description}
             </div>
           )}
@@ -108,7 +108,7 @@ export default function TaskList() {
           padding: 1.5rem;
           transition: all 0.2s;
         }
-        .task-card.completed {
+        .task-card.done {
           opacity: 0.7;
           background: rgba(255, 255, 255, 0.02);
         }

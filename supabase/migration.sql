@@ -165,6 +165,8 @@ create policy "Chat messages workspace scoped" on chat_messages for select
   ));
 create policy "Users can insert chat messages" on chat_messages for insert
   with check (user_id = auth.uid());
+create policy "Users can delete own chat messages" on chat_messages for delete
+  using (user_id = auth.uid());
 
 -- Tool calls: workspace scoped
 create policy "Tool calls workspace scoped" on tool_calls for select
@@ -190,6 +192,11 @@ create policy "Insert tasks" on tasks for insert
     union select workspace_id from workspace_members where user_id = auth.uid()
   ));
 create policy "Update tasks" on tasks for update
+  using (workspace_id in (
+    select id from workspaces where owner_id = auth.uid()
+    union select workspace_id from workspace_members where user_id = auth.uid()
+  ));
+create policy "Delete tasks" on tasks for delete
   using (workspace_id in (
     select id from workspaces where owner_id = auth.uid()
     union select workspace_id from workspace_members where user_id = auth.uid()
