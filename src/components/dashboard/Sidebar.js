@@ -23,7 +23,7 @@ export default function Sidebar() {
         <Link href="/" className="nav-link">Dashboard</Link>
         <Link href="/chat" className="nav-link">Chat</Link>
         <Link href="/documents" className="nav-link">Documents</Link>
-        <Link href="/debug" className="nav-link">Debug View</Link>
+        <Link href="/activity" className="nav-link">Activity Log</Link>
       </nav>
 
       <div className="sidebar-footer">
