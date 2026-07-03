@@ -92,15 +92,6 @@ Open [http://localhost:3000](http://localhost:3000).
 4. Switch to **Workspace B** → ask "What is the secret code?"
 5. The assistant will say it doesn't know — Workspace A's chunks are filtered out at the database level inside the `match_chunks` RPC, before the LLM ever sees the context.
 
-## Deployment (Vercel)
-
-1. Push to GitHub.
-2. Import into Vercel.
-3. Set environment variables in Vercel project settings.
-4. Deploy.
-
-The `/api/upload` and `/api/chat` routes use `maxDuration = 60` for Vercel's serverless function timeout.
-
 ## Architecture
 
 - **Workspace isolation** is enforced inside the PostgreSQL `match_chunks` function (`WHERE dc.workspace_id = target_workspace_id`), not in application code.
