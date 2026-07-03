@@ -1,22 +1,62 @@
 # AI Collaboration Notes
 
 ## AI Tools & Models Used
-I used the Google DeepMind agent ("Antigravity") powered by Gemini models for this project. 
-The work was split highly collaboratively: the AI autonomously authored the Next.js foundation, CSS design systems, Supabase schemas, and RAG pipelines, while I (the developer) acted as the orchestrator—guiding architectural constraints (e.g. demanding strict workspace isolation inside PostgreSQL rather than application code), and stepping in to test endpoint failures or API key environments when local dev environments drifted.
 
-## Key Decisions
-1. **Workspace Isolation via PostgreSQL `match_chunks` RPC**: Instead of fetching vectors and filtering in Javascript (which compromises security and token bandwidth), I decided to pass `target_workspace_id` directly into a `security definer` RPC function. The exact filter `dc.workspace_id = target_workspace_id` guarantees tenancy isolation at the lowest database level.
-2. **Dynamic Dimensionality Scaling (Gemini Embeddings)**: Initially we faced `pgvector` HNSW index limitations (which caps vectors at 2000 dimensions) when we moved to the cutting-edge `gemini-embedding-2` model (default 3072 dims). Instead of degrading the database schema or forgoing HNSW performance, I explicitly passed `outputDimensionality: 768` to the embedding configuration, generating high-quality compressed vectors that cleanly fit our DB.
-3. **Vanilla CSS Design System**: Avoiding bloated utility frameworks like Tailwind for this task, I architected a token-based glassmorphism aesthetic using raw Vanilla CSS in `index.css`. This achieved a premium UI with subtle micro-animations and perfect dark-mode gradients without a single external styling dependency.
+I used Antigravity IDE with Gemini models as a development assistant throughout this project. Rather than generating the entire application at once, I mainly used AI for accelerating repetitive implementation, reviewing code, and helping explore areas I hadn't worked with before, particularly pgvector, RAG pipelines, Gemini tool calling, and Supabase Row Level Security.
+
+For most features, I first decided how I wanted the architecture to work, then used AI to help scaffold implementations, explain unfamiliar APIs, or review specific pieces of code. Every feature was tested and adjusted manually before moving on to the next phase.
+
+---
+
+## Key Decisions I Made
+
+### 1. Enforcing workspace isolation inside the vector search
+
+One of the most important design decisions was ensuring tenant isolation at the database level instead of filtering retrieved results in application code.
+
+I implemented retrieval so the active `workspace_id` is part of the vector search itself through the `match_chunks` SQL function. This guarantees that chunks from another workspace are never retrieved in the first place, which is both more secure and more efficient.
+
+---
+
+### 2. Keeping the AI pipeline modular
+
+Since I hadn't previously built a complete RAG application with tool calling, I used AI to understand different implementation approaches before deciding on the final structure.
+
+Instead of placing everything inside a single chat endpoint, I separated the pipeline into document parsing, chunking, embeddings, retrieval, tool execution, and chat orchestration. This made each part easier to test independently and kept the codebase easier to maintain.
+
+---
+
+### 3. Tool execution with explicit validation
+
+The project required the model to call external tools safely.
+
+I decided that every tool invocation should be validated before execution using a schema, with invalid requests returning structured errors rather than executing anything unexpected. This keeps the tool layer predictable and prevents malformed model responses from causing runtime issues.
+
+---
 
 ## Hardest Bug / Wrong Turn
-The hardest bug occurred when setting up the RAG retrieval pipeline for chat. The assistant was throwing a `Failed to start chat stream` 500 Server Error.
-The AI helped me dig through Next.js console logs but couldn't find the error because it was trapped in the client-side parsing of the stream. After using a browser subagent to catch the exact error toast on the UI, I wrote a test script to execute the Supabase RPC call directly. 
-It turned out the issue was a database error: `operator does not exist: public.vector <=> public.vector`.
-The AI identified that my `match_chunks` security definer function was configured with `set search_path = ''` to prevent hijacking. However, this prevented the function from accessing the `pgvector` operators in the `public` schema. Adding `public` back to the `search_path` instantly resolved the failure.
 
-## Future Improvements
-With more time, I would:
-1. Implement **Hybrid Search (Keyword + Vector)** by coupling `pgvector` with Postgres Full Text Search for high-accuracy exact-word lookups in large documents.
-2. Build an **Upload Queue** with background workers for processing massive PDF documents without risking Vercel function timeouts.
-3. Enhance the `save_task` tool by integrating it directly into an interactive kanban board on the frontend.
+The most difficult issue happened while integrating the RAG retrieval pipeline.
+
+Initially, document uploads completed successfully, but chat requests failed because retrieval wasn't returning the expected results. I hadn't worked with pgvector before, so I used AI to help inspect the SQL function and verify the retrieval flow.
+
+After testing the RPC function directly and checking the generated SQL, I found the problem was related to the database function configuration rather than the application logic. Adjusting the function configuration resolved the issue, and I added additional validation to make retrieval failures easier to diagnose in the future.
+
+This was the part of the project where AI was most valuable—it helped narrow down possibilities much faster, but I still had to verify each assumption by testing the database and API endpoints manually.
+
+---
+
+## What I'd Improve With More Time
+
+If I continued developing this project, I would focus on a few areas:
+
+* Add hybrid retrieval (vector search combined with PostgreSQL full-text search) to improve results for exact keyword queries.
+* Move document ingestion into background jobs so larger documents don't depend on request time limits.
+* Improve observability with a dedicated dashboard for retrieval scores, token usage, latency, and tool execution metrics.
+* Expand the tool system with additional integrations and more advanced multi-step workflows.
+
+---
+
+## Reflection
+
+The biggest value AI provided during this project was helping me learn unfamiliar technologies more quickly and validating implementation ideas before I committed to them. I still made the architectural decisions, integrated the different parts of the system, tested the application end-to-end, and debugged issues as they appeared. Using AI sped up development considerably, but understanding how the pieces fit together and verifying that they satisfied the project requirements remained my responsibility.
