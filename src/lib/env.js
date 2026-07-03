@@ -6,6 +6,7 @@
 const requiredEnvVars = [
   'NEXT_PUBLIC_SUPABASE_URL',
   'NEXT_PUBLIC_SUPABASE_ANON_KEY',
+  'GOOGLE_GENERATIVE_AI_API_KEY',
 ];
 
 // Check for missing required variables on initialization
