@@ -25,8 +25,14 @@ export default function AuthForm({ mode = 'login' }) {
         if (!displayName) {
           throw new Error('Display name is required');
         }
-        const { error } = await signUp(email, password, displayName);
+        const { data, error } = await signUp(email, password, displayName);
         if (error) throw error;
+        
+        if (data?.user && !data?.session) {
+          setError('Account created! Please check your email to confirm your account.');
+          setLoading(false);
+          return;
+        }
       } else {
         const { error } = await signIn(email, password);
         if (error) throw error;
