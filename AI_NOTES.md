@@ -2,7 +2,7 @@
 
 ## 1. AI Tools & Models Used
 
-Throughout this project, I used Antigravity IDE alongside Gemini models as my primary development assistant. Because I wanted to make sure I truly understood the architecture, I didn't use the AI to generate the entire application at once. Instead, I treated it like a more experienced pairing partner. 
+Throughout this project, I used Gemini models as my primary development assistant. Because I wanted to make sure I truly understood the architecture, I didn't use the AI to generate the entire application at once. Instead, I treated it like a more experienced pairing partner. 
 
 I relied on it mostly for:
 - Learning unfamiliar technologies, specifically how `pgvector` works and how to manage Server-Sent Events (SSE) in Next.js.
@@ -11,7 +11,7 @@ I relied on it mostly for:
 - Speeding up repetitive tasks like writing CSS boilerplate and basic React component layouts.
 - Helping me debug some tricky database configuration issues.
 
-I made sure to manually verify, test, and adjust the AI-generated snippets to fit my overall project structure rather than blindly copy-pasting.
+I made sure to manually verify, test, and adjust the AI-generated snippets to fit my overall project structure.
 
 ## 2. Key Decisions I Made
 

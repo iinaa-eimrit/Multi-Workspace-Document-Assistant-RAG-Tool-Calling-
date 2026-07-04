@@ -5,7 +5,7 @@ Users upload documents into isolated workspaces and chat with an AI assistant th
 
 ## Deployed URL
 
-> **[https://your-deployed-url.vercel.app](https://your-deployed-url.vercel.app)**
+> **[Live-Link](https://multi-workspace-document-assistant.vercel.app/)**
 
 ## Quick Start — For Evaluators
 
