@@ -73,7 +73,7 @@ export default function DocumentList({ refreshTrigger }) {
   }
 
   if (documents.length === 0) {
-    return <div className="doc-list-empty glass-panel">No documents uploaded to this workspace yet.</div>;
+    return <div className="doc-list-empty glass-panel">No documents have been uploaded yet. Upload PDF, Markdown, or text files to begin building your workspace.</div>;
   }
 
   return (

@@ -169,7 +169,7 @@ export default function ChatWindow() {
         {fetchingHistory ? (
           <Spinner />
         ) : messages.length === 0 ? (
-          <p className="placeholder">Ask a question to search your workspace documents.</p>
+          <p className="placeholder">No chat history. Ask a question about your uploaded documents to begin.</p>
         ) : (
           messages.map((msg, i) => (
             <div key={msg.id || i} className={`message-row ${msg.role}`}>
@@ -212,7 +212,7 @@ export default function ChatWindow() {
           type="text" 
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder={loading ? 'Waiting for response...' : 'Ask a question...'} 
+          placeholder={loading ? 'Waiting for response...' : 'Ask a question about your uploaded documents...'} 
           className="chat-input" 
           disabled={loading}
           autoFocus

@@ -65,7 +65,7 @@ export default function WorkspaceSwitcher() {
         {workspaces.map(ws => (
           <option key={ws.id} value={ws.id}>{ws.name}</option>
         ))}
-        {workspaces.length === 0 && <option value="">No workspaces</option>}
+        {workspaces.length === 0 && <option value="">Create your first workspace to start uploading documents.</option>}
       </select>
       
       <Button variant="secondary" size="sm" onClick={() => setIsModalOpen(true)} className="create-btn">

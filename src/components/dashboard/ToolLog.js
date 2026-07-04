@@ -38,7 +38,7 @@ export default function ToolLog() {
   }
 
   if (loading) return <div className="tool-log-loading"><Spinner /></div>;
-  if (logs.length === 0) return <div className="tool-log-empty glass-panel">No tool activity logged yet.</div>;
+  if (logs.length === 0) return <div className="tool-log-empty glass-panel">No tool calls executed yet. AI-executed tool calls will be logged here.</div>;
 
   return (
     <div className="tool-log-list">

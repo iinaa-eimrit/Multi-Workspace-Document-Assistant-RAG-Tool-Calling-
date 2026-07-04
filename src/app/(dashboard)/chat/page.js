@@ -8,7 +8,7 @@ export default function ChatPage() {
     <div className="chat-page">
       <header className="page-header">
         <h1>Assistant</h1>
-        <p className="subtitle">Ask questions based on your workspace documents.</p>
+        <p className="subtitle">Ask questions about documents in your active workspace.</p>
       </header>
       
       <div className="chat-container">

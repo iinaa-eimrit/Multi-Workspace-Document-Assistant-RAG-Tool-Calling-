@@ -91,7 +91,7 @@ export default function UploadZone({ onUploadSuccess }) {
         ref={fileInputRef}
         onChange={handleChange}
         style={{ display: 'none' }}
-        accept=".pdf,.txt,.md,.csv"
+        accept=".pdf,.txt,.md"
       />
       
       <div className="upload-content">
@@ -103,8 +103,8 @@ export default function UploadZone({ onUploadSuccess }) {
         ) : (
           <>
             <div className="upload-icon">📄</div>
-            <p>Drag and drop a document here</p>
-            <p className="sub">Supports .pdf, .txt, .md, .csv (max 5MB)</p>
+            <p>Drag and drop a document here, or click to browse</p>
+            <p className="sub">Supports .pdf, .txt, .md (max 5MB)</p>
           </>
         )}
       </div>

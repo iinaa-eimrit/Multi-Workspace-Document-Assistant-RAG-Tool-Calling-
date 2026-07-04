@@ -69,7 +69,7 @@ export default function TaskList() {
   }
 
   if (loading) return <div className="task-list-loading"><Spinner /></div>;
-  if (tasks.length === 0) return <div className="task-list-empty glass-panel">No tasks found for this workspace. Use the Assistant to create one!</div>;
+  if (tasks.length === 0) return <div className="task-list-empty glass-panel">No tasks found. Tasks created by AI tools will appear here. Use the AI assistant to create tasks for this workspace.</div>;
 
   return (
     <div className="task-list">

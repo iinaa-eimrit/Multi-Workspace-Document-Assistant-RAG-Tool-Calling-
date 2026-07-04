@@ -24,8 +24,8 @@ export default function Sidebar() {
         <Link href="/chat" className="nav-link">Chat</Link>
         <Link href="/documents" className="nav-link">Documents</Link>
         <Link href="/tasks" className="nav-link">Tasks</Link>
-        <Link href="/activity" className="nav-link">Activity Log</Link>
-        <Link href="/debug" className="nav-link">RAG Debugger</Link>
+        <Link href="/activity" className="nav-link">Tool Calls</Link>
+        <Link href="/debug" className="nav-link">Retrieval Debug</Link>
       </nav>
 
       <div className="sidebar-footer">

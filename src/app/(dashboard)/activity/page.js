@@ -7,8 +7,8 @@ export default function ActivityPage() {
   return (
     <div className="activity-page">
       <header className="page-header">
-        <h1>Activity Log</h1>
-        <p className="subtitle">Debug view for backend AI tool executions.</p>
+        <h1>Tool Calls</h1>
+        <p className="subtitle">View tool calls executed by the AI assistant, including execution status and results.</p>
       </header>
 
       <section className="log-section">

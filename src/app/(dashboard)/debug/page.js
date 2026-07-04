@@ -7,8 +7,9 @@ export default function DebugPage() {
   return (
     <div className="debug-page">
       <header className="page-header">
-        <h1>RAG Debugger</h1>
-        <p className="subtitle">Test and tune the vector search retrieval pipeline.</p>
+        <h1>Retrieval Debug</h1>
+        <p className="subtitle">Inspect retrieved document chunks, similarity scores, and workspace filtering for debugging retrieval.</p>
+        <p className="subtitle mt-1">This page helps verify that document retrieval remains isolated to the active workspace.</p>
       </header>
 
       <section className="debugger-section">
@@ -34,6 +35,12 @@ export default function DebugPage() {
           color: var(--text-muted);
           margin: 0;
           font-size: 1.1rem;
+        }
+        .mt-1 {
+          margin-top: 0.5rem;
+          font-size: 0.95rem;
+          color: var(--accent);
+          opacity: 0.9;
         }
       `}</style>
     </div>
