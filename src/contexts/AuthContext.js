@@ -48,7 +48,9 @@ export function AuthProvider({ children }) {
   };
 
   const signOut = async () => {
-    return await supabase.auth.signOut();
+    const result = await supabase.auth.signOut();
+    window.location.href = '/login';
+    return result;
   };
 
   return (

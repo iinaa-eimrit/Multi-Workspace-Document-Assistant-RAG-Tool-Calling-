@@ -36,7 +36,11 @@ export default function DashboardPage() {
   return (
     <div className="dashboard-home">
       <header className="page-header">
-        <h1>Welcome back, {user?.user_metadata?.display_name || user?.email?.split('@')[0]}!</h1>
+        <h1>
+          {(user?.user_metadata?.display_name || user?.email)
+            ? `Welcome back, ${user?.user_metadata?.display_name || user.email.split('@')[0]}`
+            : 'Welcome back!'}
+        </h1>
         <p className="subtitle">
           {activeWorkspace 
             ? `Currently viewing workspace: ${activeWorkspace.name}` 
