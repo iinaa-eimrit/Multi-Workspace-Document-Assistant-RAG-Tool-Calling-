@@ -1,4 +1,5 @@
 import { createServerClient } from '@supabase/ssr';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import { env } from '../env';
 
@@ -28,5 +29,15 @@ export async function createClient() {
         },
       },
     }
+  );
+}
+
+/**
+ * Creates a Supabase client with the Service Role key to bypass RLS for system-level logging.
+ */
+export function createAdminClient() {
+  return createSupabaseClient(
+    env.supabase.url,
+    env.supabase.serviceRoleKey
   );
 }

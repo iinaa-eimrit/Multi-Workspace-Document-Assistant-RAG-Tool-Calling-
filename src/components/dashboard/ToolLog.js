@@ -24,7 +24,7 @@ export default function ToolLog() {
         .from('tool_calls')
         .select('*')
         .eq('workspace_id', activeWorkspace.id)
-        .order('created_at', { ascending: false });
+        .order('executed_at', { ascending: false });
       
       setLogs(data || []);
       setLoading(false);

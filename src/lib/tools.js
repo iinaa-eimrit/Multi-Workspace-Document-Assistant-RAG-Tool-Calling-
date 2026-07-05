@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { env } from './env';
 
 export const aiTools = [{
@@ -111,8 +111,9 @@ export async function executeToolCall(workspaceId, chatMessageId, toolName, args
     result = { error: errorMessage };
   }
 
-  // 3. Update the tool call log with the final result
-  await supabase
+  // 3. Update the tool call log with the final result using Admin Client since there is no UPDATE policy
+  const adminSupabase = createAdminClient();
+  await adminSupabase
     .from('tool_calls')
     .update({
       result,
